@@ -7,6 +7,10 @@ RUN apt update && apt install -y zsh curl git sudo wget libsndfile1 ffmpeg
 # RUN update-alternatives --install /usr/bin/pthon python /usr/bin/python3.10 1 
 RUN apt install -y python3.10-venv
 
+RUN  wget -qO /usr/local/bin/websocat https://github.com/vi/websocat/releases/latest/download/websocat.x86_64-unknown-linux-musl
+RUN chmod a+x /usr/local/bin/websocat
+
+
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
