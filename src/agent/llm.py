@@ -7,28 +7,6 @@ api_base = "http://10.232.14.15:10002/v1/"
 client = openai.Client(api_key=api_key, base_url=api_base)
 
 model_name = "/data0/models/huggingface/meta-llama/Llama-2-7b-chat-hf"
-
-def predict(message, history, system_prompt):
-    history_openai_format = []
-    history_openai_format.append({"role": "system", "content": system_prompt})
-    for human, assistant in history:
-        history_openai_format.append({"role": "user", "content": human })
-        history_openai_format.append({"role": "assistant", "content":assistant})
-    history_openai_format.append({"role": "user", "content": message})
-
-    response = client.chat.completions.create(
-        model=model_name,
-        messages= history_openai_format,
-        # response_format={ "type": "json_object" },
-        stream=True
-    )
-
-    partial_message = ""
-    for chunk in response:
-        if chunk.choices[0].delta.content and len(chunk.choices[0].delta.content) != 0:
-            partial_message = partial_message + chunk.choices[0].delta.content
-            yield partial_message
-
 business_prompt = """
 The description of a dining reservation scenario is as follows:
 {
@@ -69,6 +47,47 @@ You are an assistant to help customers reserve their restaurants. Make a phone c
 }
 }
 """
+
+def nonstream_chat(message, history):
+    history_openai_format = []
+    history_openai_format.append({"role": "system", "content": "you are a useful agent, avoid using any emojis, answer within 2 sentences"})
+    for human, assistant in history:
+        history_openai_format.append({"role": "user", "content": human })
+        history_openai_format.append({"role": "assistant", "content":assistant})
+    history_openai_format.append({"role": "user", "content": message})
+
+    response = client.chat.completions.create(
+        model=model_name,
+        messages= history_openai_format
+        # response_format={ "type": "json_object" },
+        #stream=True
+    )
+    return response.choices[0].message.content
+
+
+
+def predict(message, history, system_prompt):
+    history_openai_format = []
+    history_openai_format.append({"role": "system", "content": system_prompt})
+    for human, assistant in history:
+        history_openai_format.append({"role": "user", "content": human })
+        history_openai_format.append({"role": "assistant", "content":assistant})
+    history_openai_format.append({"role": "user", "content": message})
+
+    response = client.chat.completions.create(
+        model=model_name,
+        messages= history_openai_format,
+        # response_format={ "type": "json_object" },
+        stream=True
+    )
+
+    partial_message = ""
+    for chunk in response:
+        if chunk.choices[0].delta.content and len(chunk.choices[0].delta.content) != 0:
+            partial_message = partial_message + chunk.choices[0].delta.content
+            yield partial_message
+
+
 
 
 def chat(text):

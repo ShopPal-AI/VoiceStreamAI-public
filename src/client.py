@@ -18,6 +18,7 @@ class Client:
     """
     def __init__(self, client_id, sampling_rate, samples_width):
         self.client_id = client_id
+        self.chat_history = list()
         self.buffer = bytearray()
         self.scratch_buffer = bytearray()
         self.config = {"language": None,
@@ -51,4 +52,7 @@ class Client:
         return f"{self.client_id}_{self.file_counter}.wav"
     
     def process_audio(self, websocket, vad_pipeline, asr_pipeline, agent):
-        self.buffering_strategy.process_audio(websocket, vad_pipeline, asr_pipeline, agent)
+        new_message = self.buffering_strategy.process_audio(websocket, vad_pipeline, asr_pipeline, agent, self.chat_history)
+        if new_message is not None:
+            self.chat_history.extends(new_message)
+

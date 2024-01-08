@@ -44,7 +44,7 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
         
         self.processing_flag = False
 
-    def process_audio(self, websocket, vad_pipeline, asr_pipeline, agent):
+    def process_audio(self, websocket, vad_pipeline, asr_pipeline, agent, chat_history):
         """
         Process audio chunks by checking their length and scheduling asynchronous processing.
 
@@ -65,9 +65,9 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
             self.client.buffer.clear()
             self.processing_flag = True
             # Schedule the processing in a separate task
-            asyncio.create_task(self.process_audio_async(websocket, vad_pipeline, asr_pipeline, agent))
+            asyncio.create_task(self.process_audio_async(websocket, vad_pipeline, asr_pipeline, agent, chat_history))
     
-    async def process_audio_async(self, websocket, vad_pipeline, asr_pipeline, agent):
+    async def process_audio_async(self, websocket, vad_pipeline, asr_pipeline, agent, chat_history):
         """
         Asynchronously process audio for activity detection and transcription.
 
@@ -79,6 +79,8 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
             vad_pipeline: The voice activity detection pipeline.
             asr_pipeline: The automatic speech recognition pipeline.
         """   
+        new_question = None
+        new_answer = None
         start = time.time()
         vad_results = await vad_pipeline.detect_activity(self.client)
 
@@ -86,18 +88,20 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
             self.client.scratch_buffer.clear()
             self.client.buffer.clear()
             self.processing_flag = False
-            return
+            return new_question, new_answer
 
         last_segment_should_end_before = ((len(self.client.scratch_buffer) / (self.client.sampling_rate * self.client.samples_width)) - self.chunk_offset_seconds)
         if vad_results[-1]['end'] < last_segment_should_end_before:
             transcription = await asr_pipeline.transcribe(self.client)
-            if transcription['text'] != '':
+            if transcription['text'] != '' and transcription['language'] == 'en' and transcription['language_probability']>0.5 :
+                new_question = transcription['text']
                 end = time.time()
                 transcription['processing_time'] = end - start
                 json_transcription = json.dumps(transcription) 
                 await websocket.send(json_transcription)
 
-                answer = {"text":agent(transcription['text']), "processing_time":time.time()-end}
+                new_answer = agent(transcription['text'], chat_history)
+                answer = {"text":new_answer, "processing_time":time.time()-end}
                 json_answer = json.dumps(answer)
                 await websocket.send(json_answer)
 

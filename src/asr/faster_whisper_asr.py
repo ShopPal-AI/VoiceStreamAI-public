@@ -125,6 +125,7 @@ class FasterWhisperASR(ASRInterface):
 
         flattened_words = [word for segment in segments for word in segment.words]
 
+        
         to_return = {
         "language": info.language,
         "language_probability": info.language_probability,
@@ -134,5 +135,6 @@ class FasterWhisperASR(ASRInterface):
                 {"word": w.word, "start": w.start, "end": w.end, "probability":w.probability} for w in flattened_words
             ]
         }
+        print("language:{}, prob: {}, text: {}".format(info.language, info.language_probability, to_return['text']))
         return to_return
 
