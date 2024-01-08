@@ -65,5 +65,5 @@ class Server:
             del self.connected_clients[client_id]
 
     def start(self):
-        print("Websocket server ready to accept connections")
+        print(f"Websocket server ready to accept connections: {self.host}:{self.port}")
         return websockets.serve(self.handle_websocket, self.host, self.port)
