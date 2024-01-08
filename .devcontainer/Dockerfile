@@ -1,4 +1,4 @@
-FROM ghcr.io/shoppal-ai/llm-:pytorch-2.0.1-py3.10-cuda-11.8.0-cudnn8-devel-22.04
+FROM ghcr.io/shoppal-ai/llm-base:pytorch-2.0.1-py3.10-cuda-11.8.0-cudnn8-devel-22.04
 
 RUN apt update && apt install -y zsh curl git sudo wget libsndfile1 ffmpeg
 
