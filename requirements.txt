@@ -6,3 +6,4 @@ sentence-transformers
 transformers
 faster-whisper
 openai
+jupyter

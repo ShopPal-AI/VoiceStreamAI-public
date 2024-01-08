@@ -51,8 +51,8 @@ class Client:
     def get_file_name(self):
         return f"{self.client_id}_{self.file_counter}.wav"
     
-    def process_audio(self, websocket, vad_pipeline, asr_pipeline, agent):
-        new_message = self.buffering_strategy.process_audio(websocket, vad_pipeline, asr_pipeline, agent, self.chat_history)
+    def process_audio(self, websocket, vad_pipeline, asr_pipeline, agent, tts):
+        new_message = self.buffering_strategy.process_audio(websocket, vad_pipeline, asr_pipeline, agent, tts, self.chat_history)
         if new_message is not None:
             self.chat_history.extends(new_message)
 
