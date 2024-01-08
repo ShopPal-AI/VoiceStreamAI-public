@@ -44,7 +44,7 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
         
         self.processing_flag = False
 
-    def process_audio(self, websocket, vad_pipeline, asr_pipeline):
+    def process_audio(self, websocket, vad_pipeline, asr_pipeline, agent):
         """
         Process audio chunks by checking their length and scheduling asynchronous processing.
 
@@ -65,9 +65,9 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
             self.client.buffer.clear()
             self.processing_flag = True
             # Schedule the processing in a separate task
-            asyncio.create_task(self.process_audio_async(websocket, vad_pipeline, asr_pipeline))
+            asyncio.create_task(self.process_audio_async(websocket, vad_pipeline, asr_pipeline, agent))
     
-    async def process_audio_async(self, websocket, vad_pipeline, asr_pipeline):
+    async def process_audio_async(self, websocket, vad_pipeline, asr_pipeline, agent):
         """
         Asynchronously process audio for activity detection and transcription.
 
@@ -96,6 +96,11 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
                 transcription['processing_time'] = end - start
                 json_transcription = json.dumps(transcription) 
                 await websocket.send(json_transcription)
+
+                answer = {"text":agent(transcription['text']), "processing_time":time.time()-end}
+                json_answer = json.dumps(answer)
+                await websocket.send(json_answer)
+
             self.client.scratch_buffer.clear()
             self.client.increment_file_counter()
         

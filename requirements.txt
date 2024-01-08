@@ -5,3 +5,4 @@ asyncio
 sentence-transformers
 transformers
 faster-whisper
+openai

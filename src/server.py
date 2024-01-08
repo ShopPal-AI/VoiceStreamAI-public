@@ -23,9 +23,10 @@ class Server:
         samples_width (int): The width of each audio sample in bits.
         connected_clients (dict): A dictionary mapping client IDs to Client objects.
     """
-    def __init__(self, vad_pipeline, asr_pipeline, host='localhost', port=8765, sampling_rate=16000, samples_width=2):
+    def __init__(self, vad_pipeline, asr_pipeline, agent, host='localhost', port=8765, sampling_rate=16000, samples_width=2):
         self.vad_pipeline = vad_pipeline
         self.asr_pipeline = asr_pipeline
+        self.agent = agent
         self.host = host
         self.port = port
         self.sampling_rate = sampling_rate
@@ -47,7 +48,7 @@ class Server:
                 print(f"Unexpected message type from {client.client_id}")
 
             # this is synchronous, any async operation is in BufferingStrategy
-            client.process_audio(websocket, self.vad_pipeline, self.asr_pipeline)
+            client.process_audio(websocket, self.vad_pipeline, self.asr_pipeline, self.agent)
 
 
     async def handle_websocket(self, websocket, path):

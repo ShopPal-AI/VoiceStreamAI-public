@@ -7,6 +7,7 @@ from .server import Server
 from src.asr.asr_factory import ASRFactory
 from src.vad.vad_factory import VADFactory
 import random
+from src.agent.llm import chat
 
 def parse_args():
     parser = argparse.ArgumentParser(description="VoiceStreamAI Server: Real-time audio transcription using self-hosted Whisper and WebSocket")
@@ -29,8 +30,9 @@ def main():
 
     vad_pipeline = VADFactory.create_vad_pipeline(args.vad_type, **vad_args)
     asr_pipeline = ASRFactory.create_asr_pipeline(args.asr_type, **asr_args)
+    agent = chat
 
-    server = Server(vad_pipeline, asr_pipeline, host=args.host, port=os.environ.get("SERVER_PORT", random.randint(10000, 11000)), sampling_rate=16000, samples_width=2)
+    server = Server(vad_pipeline, asr_pipeline, agent, host=args.host, port=args.port, sampling_rate=16000, samples_width=2)
 
     asyncio.get_event_loop().run_until_complete(server.start())
     asyncio.get_event_loop().run_forever()

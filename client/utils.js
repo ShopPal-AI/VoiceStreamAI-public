@@ -72,7 +72,8 @@ function updateTranscription(transcript_data) {
         transcriptionDiv.appendChild(document.createElement('br'));
     } else {
         // Fallback to plain text
-        transcriptionDiv.textContent += transcript_data['text'] + '\n';
+        //transcriptionDiv.textContent += transcript_data['text'] + '\n';
+        transcriptionDiv.innerHTML += transcript_data['text'] + '<br>';
     }
 
     // Update the language information
