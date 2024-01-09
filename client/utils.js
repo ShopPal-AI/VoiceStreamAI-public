@@ -13,6 +13,15 @@ let globalStream;
 const websocket_uri = 'ws://localhost:8765';
 const bufferSize = 4096;
 let isRecording = false;
+let isPlaybackActive = false;
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+document.addEventListener('visibilitychange', checkPlayback);
+
+function checkPlayback() {
+    isPlaybackActive = audioContext.state === 'running';
+    console.log("check playback status", isPlaybackActive)
+    return isPlaybackActive
+}
 
 function initWebSocket() {
     const websocketAddress = document.getElementById('websocketAddress').value;
@@ -45,16 +54,38 @@ function initWebSocket() {
     };
 }
 
+function playAudioStream(audioData) {
+    
+    // Decode the audio data
+    audioContext.decodeAudioData(audioData, function(buffer) {
+        // Create a buffer source node
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+
+        // Connect the source to the destination (speakers)
+        source.connect(audioContext.destination);
+
+        // Start playing the audio
+        source.start();
+    }, function(err) {
+        console.error('Error decoding audio data:', err);
+    });
+
+}
+    
+
 function updateTranscription(transcript_data) {
     const transcriptionDiv = document.getElementById('transcription');
     const languageDiv = document.getElementById('detected_language');
-    const audioDiv = document.getElementById('audioPlayer');
 
     if (transcript_data['tts'] && transcript_data['tts'].length > 0) {
-        const audioBlob = new Blob([transcript_data['tts']], { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        audioDiv.src = audioUrl;
-        audioDiv.play();
+
+        
+        console.log("tts coming");
+
+        const intarray = new Uint8Array(transcript_data['tts']);
+        
+        playAudioStream(intarray.buffer)
     }
     else if (transcript_data['words'] && transcript_data['words'].length > 0) {
         // Append words with color based on their probability
@@ -187,6 +218,10 @@ function downsampleBuffer(buffer, inputSampleRate, outputSampleRate) {
 }
 
 function processAudio(e) {
+    if (isPlaybackActive) {
+        console.log("active")
+        return;
+    }
     const inputSampleRate = context.sampleRate;
     const outputSampleRate = 16000; // Target sample rate
 
