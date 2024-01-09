@@ -1,7 +1,20 @@
 
 import requests
+import re
 
 api_url = "http://127.0.0.1:5002/api/tts"
+
+
+
+def remove_non_english_chars(input_string):
+    # Define a regex pattern to match non-English characters
+    # Exclude punctuation from removal
+    pattern = re.compile('[^a-zA-Z0-9\s.,;!?\'"-]')
+    
+    # Use the pattern to replace non-English characters with an empty string
+    cleaned_string = pattern.sub('', input_string)
+    
+    return cleaned_string
 
 
 
@@ -9,6 +22,9 @@ def tts(text, language='en'):
     try:
         text = text.strip()
         text = text.replace("\n", " ")
+        #text = text.encode('utf-8')
+        text = remove_non_english_chars(text)
+        print(text)
         headers = {
             "text": text,
             "language-id": language
@@ -22,4 +38,6 @@ def tts(text, language='en'):
 
 
 if __name__ == '__main__':
-    tts("Understood! Here is my revised response:\n\nI appreciate your willingness to change. Can you please provide more details about what changes you would like to make and why?")
+    text = "I'm unable to provide information on that topic. 😕"
+    print(text)
+    tts(text)

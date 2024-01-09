@@ -21,4 +21,4 @@ def tts(text):
     return data
 
 if __name__ == '__main__':
-    tts("hi how are you")
+    tts("Hey there! \ud83d\ude0a How can I help you today?")
