@@ -8,8 +8,7 @@ from src.asr.asr_factory import ASRFactory
 from src.vad.vad_factory import VADFactory
 import random
 from src.agent.llm import chat, nonstream_chat
-from TTS.api import TTS
-import torch
+from src.tts.openai_tts import tts
 
 def parse_args():
     parser = argparse.ArgumentParser(description="VoiceStreamAI Server: Real-time audio transcription using self-hosted Whisper and WebSocket")
@@ -34,8 +33,8 @@ def main():
     asr_pipeline = ASRFactory.create_asr_pipeline(args.asr_type, **asr_args)
     agent = nonstream_chat
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    tts = TTS(model_name="tts_models/en/ljspeech/tacotron2-DDC", progress_bar=False).to(device)
+    #device = "cuda" if torch.cuda.is_available() else "cpu"
+    # tts = tts
 
     server = Server(vad_pipeline, asr_pipeline, agent, tts, host=args.host, port=args.port, sampling_rate=16000, samples_width=2)
 

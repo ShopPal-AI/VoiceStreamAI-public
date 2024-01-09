@@ -82,9 +82,7 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
         new_question = None
         new_answer = None
         start = time.time()
-        print("vad start")
         vad_results = await vad_pipeline.detect_activity(self.client)
-        print("vad end")
 
         if len(vad_results) == 0:
             self.client.scratch_buffer.clear()
@@ -94,9 +92,9 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
 
         last_segment_should_end_before = ((len(self.client.scratch_buffer) / (self.client.sampling_rate * self.client.samples_width)) - self.chunk_offset_seconds)
         if vad_results[-1]['end'] < last_segment_should_end_before:
-            print("asr start")
+            #print("asr start")
             transcription = await asr_pipeline.transcribe(self.client)
-            print("asr end")
+            #print("asr end")
             if transcription['text'] != '' and transcription['language'] == 'en' and transcription['language_probability']>0.5 :
                 new_question = transcription['text']
                 end = time.time()
@@ -104,19 +102,19 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
                 json_transcription = json.dumps(transcription) 
                 await websocket.send(json_transcription)
 
-                print("agent start")
+                #print("agent start")
                 new_answer = agent(transcription['text'], chat_history)
-                print("agent end")
+                #print("agent end")
                 answer = {"text":new_answer, "processing_time":time.time()-end}
                 json_answer = json.dumps(answer)
                 await websocket.send(json_answer)
 
-                print("tts start")
-                wav_list = tts.tts(text=new_answer)
-                sample_rate = tts.synthesizer.output_sample_rate
-                tts_result = {"tts": wav_list, "sample_rate":sample_rate}
+                #print("tts start")
+                tts_bytes = tts(text=new_answer)
+                
+                tts_result = {"tts": list(tts_bytes)}
                 tts_result = json.dumps(tts_result)
-                print("tts end")
+                #print("tts end")
                 await websocket.send(tts_result)
 
             self.client.scratch_buffer.clear()
