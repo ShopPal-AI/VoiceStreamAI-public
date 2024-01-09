@@ -8,7 +8,7 @@ from src.asr.asr_factory import ASRFactory
 from src.vad.vad_factory import VADFactory
 import random
 from src.agent.llm import chat, nonstream_chat
-from src.tts.openai_tts import tts
+from src.tts.coqui_tts import tts
 
 def parse_args():
     parser = argparse.ArgumentParser(description="VoiceStreamAI Server: Real-time audio transcription using self-hosted Whisper and WebSocket")

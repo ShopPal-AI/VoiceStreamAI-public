@@ -1,13 +1,21 @@
-import torch
-from TTS.api import TTS
+
+import requests
+
+api_url = "http://127.0.0.1:5002/api/tts"
 
 
 
-# Get device
-device = "cuda" if torch.cuda.is_available() else "cpu"
-tts = TTS(model_name="tts_models/en/ljspeech/tacotron2-DDC", progress_bar=False).to(device)
+def tts(text, language='en'):
+    text = text.strip()
+    headers = {
+        "text": text,
+        "language-id": language
+    }
 
-# Run TTS
-tts.tts_to_file(text="Hi, how can I help you?", file_path="test.wav")
-wav = tts.tts("hi, how can I help you?")
-print(type(wav))
+    response = requests.post(api_url, headers=headers)
+    
+    return response.content
+
+
+if __name__ == '__main__':
+    tts("hi how are you")
