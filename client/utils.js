@@ -48,8 +48,15 @@ function initWebSocket() {
 function updateTranscription(transcript_data) {
     const transcriptionDiv = document.getElementById('transcription');
     const languageDiv = document.getElementById('detected_language');
+    const audioDiv = document.getElementById('audioPlayer');
 
-    if (transcript_data['words'] && transcript_data['words'].length > 0) {
+    if (transcript_data['tts'] && transcript_data['tts'].length > 0) {
+        const audioBlob = new Blob([transcript_data['tts']], { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        audioDiv.src = audioUrl;
+        audioDiv.play();
+    }
+    else if (transcript_data['words'] && transcript_data['words'].length > 0) {
         // Append words with color based on their probability
         transcript_data['words'].forEach(wordData => {
             const span = document.createElement('span');
