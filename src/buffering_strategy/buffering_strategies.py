@@ -105,14 +105,15 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
                 #print("agent start")
                 new_answer = agent(transcription['text'], chat_history)
                 #print("agent end")
-                answer = {"text":new_answer, "processing_time":time.time()-end}
+                agent_time = time.time()
+                answer = {"text":new_answer, "processing_time":agent_time-end}
                 json_answer = json.dumps(answer)
                 await websocket.send(json_answer)
 
                 #print("tts start")
                 tts_bytes = tts(text=new_answer)
-                
-                tts_result = {"tts": list(tts_bytes)}
+                tts_time = time.time()
+                tts_result = {"processing_time":tts_time-agent_time, "tts": list(tts_bytes)}
                 tts_result = json.dumps(tts_result)
                 #print("tts end")
                 await websocket.send(tts_result)
