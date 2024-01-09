@@ -112,11 +112,12 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
 
                 #print("tts start")
                 tts_bytes = tts(text=new_answer)
-                tts_time = time.time()
-                tts_result = {"processing_time":tts_time-agent_time, "tts": list(tts_bytes)}
-                tts_result = json.dumps(tts_result)
-                #print("tts end")
-                await websocket.send(tts_result)
+                if tts_bytes is not None:
+                    tts_time = time.time()
+                    tts_result = {"processing_time":tts_time-agent_time, "tts": list(tts_bytes)}
+                    tts_result = json.dumps(tts_result)
+                    #print("tts end")
+                    await websocket.send(tts_result)
 
             self.client.scratch_buffer.clear()
             self.client.increment_file_counter()
