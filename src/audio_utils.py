@@ -1,7 +1,7 @@
 import wave
 import os
 
-async def save_audio_to_file(audio_data, file_name, audio_dir="audio_files", audio_format="wav"):
+def save_audio_to_file(audio_data, file_name, audio_dir="audio_files", audio_format="wav"):
     """
     Saves the audio data to a file.
 

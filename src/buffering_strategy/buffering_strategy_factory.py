@@ -13,7 +13,7 @@ class BufferingStrategyFactory:
     """
 
     @staticmethod
-    def create_buffering_strategy(type, client, **kwargs):
+    def create_buffering_strategy(type, **kwargs):
         """
         Creates an instance of a buffering strategy based on the specified type.
 
@@ -36,6 +36,6 @@ class BufferingStrategyFactory:
             strategy = BufferingStrategyFactory.create_buffering_strategy("silence_at_end_of_chunk", client)
         """
         if type == "silence_at_end_of_chunk":
-            return SilenceAtEndOfChunk(client, **kwargs)
+            return SilenceAtEndOfChunk(**kwargs)
         else:
             raise ValueError(f"Unknown buffering strategy type: {type}")

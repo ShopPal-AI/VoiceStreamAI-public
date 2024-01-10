@@ -7,3 +7,4 @@ transformers
 faster-whisper
 openai
 jupyter
+gradio

@@ -1,7 +1,6 @@
 import os
 from faster_whisper import WhisperModel
 
-from .asr_interface import ASRInterface
 from src.audio_utils import save_audio_to_file
 
 language_codes = {
@@ -108,14 +107,14 @@ language_codes = {
 }
 
 
-class FasterWhisperASR(ASRInterface):
+class FasterWhisperASR():
     def __init__(self, **kwargs):
         model_size = kwargs.get('model_size', "large-v3")
         # Run on GPU with FP16
         self.asr_pipeline = WhisperModel(model_size, device="cuda", compute_type="float16")
 
-    async def transcribe(self, client):
-        file_path = await save_audio_to_file(client.scratch_buffer, client.get_file_name())
+    def transcribe(self, chunk_stack):
+        file_path = save_audio_to_file(chunk_stack, client.get_file_name())
 
         language = None if client.config['language'] is None else language_codes.get(client.config['language'].lower())
         segments, info = self.asr_pipeline.transcribe(file_path, word_timestamps=True, language=language)

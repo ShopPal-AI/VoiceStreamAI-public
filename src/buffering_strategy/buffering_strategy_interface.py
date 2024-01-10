@@ -13,7 +13,7 @@ class BufferingStrategyInterface:
         process_audio: Process audio data. This method should be implemented by subclasses.
     """
 
-    def process_audio(self, websocket, vad_pipeline, asr_pipeline):
+    def process_audio(self, vad_pipeline, asr_pipeline):
         """
         Process audio data using the given WebSocket connection, VAD pipeline, and ASR pipeline.
 
